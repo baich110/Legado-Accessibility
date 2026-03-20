@@ -38,8 +38,8 @@ jobs:
         timeout-minutes: 60
 
       - name: Upload APK
-        uses: actions/upload-artifacts@v4
+        uses: actions/upload-artifacts@v3
         with:
           name: Legado-APK
-          path: app/build/outputs/apk/release/*.apk
+          path: app/build/outputs/apk/release/
           retention-days: 30
