@@ -83,8 +83,6 @@ abstract class BaseActivity<VB : ViewBinding>(
         super.onCreate(savedInstanceState)
         setupSystemBar()
         setContentView(binding.root)
-        // 增强无障碍支持
-        enhanceAccessibility()
         upBackgroundImage()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             findViewById<TitleBar>(R.id.title_bar)
@@ -208,33 +206,6 @@ abstract class BaseActivity<VB : ViewBinding>(
         } catch (e: IllegalArgumentException) {
             e.printStackTrace()
             false
-        }
-    }
-
-    /**
-     * 增强当前Activity的无障碍支持
-     * 自动为所有视图添加适当的无障碍属性
-     */
-    protected fun enhanceAccessibility() {
-        try {
-            val rootView = findViewById<ViewGroup>(android.R.id.content)
-            if (rootView != null && rootView.childCount > 0) {
-                val contentView = rootView.getChildAt(0)
-                if (contentView is ViewGroup) {
-                    io.legado.app.accessibility.AccessibilityEnhancer.enhanceViewGroup(
-                        contentView,
-                        this
-                    )
-                } else {
-                    io.legado.app.accessibility.AccessibilityEnhancer.enhanceView(
-                        contentView,
-                        this
-                    )
-                }
-            }
-        } catch (e: Exception) {
-            // 无障碍增强失败不应影响正常功能
-            AppLog.put("无障碍增强失败: ${e.message}", e)
         }
     }
 
