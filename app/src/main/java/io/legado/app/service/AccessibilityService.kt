@@ -2,8 +2,6 @@ package io.legado.app.service
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.content.Intent
-import android.os.Build
 import android.view.accessibility.AccessibilityEvent
 
 /**
@@ -35,7 +33,6 @@ class AccessibilityService : AccessibilityService() {
                     AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED
             feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC
             notificationTimeout = 100
-            canRetrieveWindowContent = true
         }
         setServiceInfo(info)
     }
