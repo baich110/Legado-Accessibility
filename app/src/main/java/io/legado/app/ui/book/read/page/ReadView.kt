@@ -391,48 +391,13 @@ class ReadView(context: Context, attrs: AttributeSet) :
     }
 
     /**
-     * 单击
-     */
-    private fun onSingleTapUp() {
-        when {
-            isTextSelected -> Unit
-            mcRect.contains(startX, startY) -> if (!isAbortAnim) {
-                click(AppConfig.clickActionMC)
-            }
-
-            bcRect.contains(startX, startY) -> {
-                click(AppConfig.clickActionBC)
-            }
-
-            blRect.contains(startX, startY) -> {
-                click(AppConfig.clickActionBL)
-            }
-
-            brRect.contains(startX, startY) -> {
-                click(AppConfig.clickActionBR)
-            }
-
-            mlRect.contains(startX, startY) -> {
-                click(AppConfig.clickActionML)
-            }
-
-            mrRect.contains(startX, startY) -> {
-                click(AppConfig.clickActionMR)
-            }
-
-            tlRect.contains(startX, startY) -> {
-                click(AppConfig.clickActionTL)
-            }
-
-            tcRect.contains(startX, startY) -> {
-                click(AppConfig.clickActionTC)
-            }
-
-            trRect.contains(startX, startY) -> {
-                click(AppConfig.clickActionTR)
-            }
-        }
-    }
+ * 单击 - 修改为任意位置点击都能触发菜单（适配无障碍）
+ * 修复：朗读状态下自动切换到朗读菜单
+ */
+private fun onSingleTapUp() {
+    // 修复：任意位置点击都触发菜单，保持朗读状态检查
+    callBack.showActionMenu()
+}
 
     /**
      * 点击
