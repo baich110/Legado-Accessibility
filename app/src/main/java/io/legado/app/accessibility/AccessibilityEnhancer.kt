@@ -1,55 +1,54 @@
 package io.legado.app.accessibility
 
-import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.AccessibilityDelegateCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 
+/**
+ * 无障碍增强工具类
+ * 为读屏用户提供更好的导航支持
+ */
 object AccessibilityEnhancer {
     
-    fun enhanceViewGroup(viewGroup: ViewGroup, activity: Activity) {
-        if (!isAccessibilityEnabled(activity)) return
+    /**
+     * 检查无障碍服务是否启用
+     */
+    fun isAccessibilityEnabled(context: Context): Boolean {
+        return try {
+            val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) 
+                as android.view.accessibility.AccessibilityManager
+            am.isEnabled
+        } catch (e: Exception) { 
+            false 
+        }
+    }
+    
+    /**
+     * 增强视图组的无障碍支持
+     */
+    fun enhanceViewGroup(viewGroup: ViewGroup, context: Context) {
+        if (!isAccessibilityEnabled(context)) return
         
-        ViewCompat.setAccessibilityDelegate(viewGroup, object : AccessibilityDelegateCompat() {
-            override fun onInitializeAccessibilityNodeInfo(
-                host: View,
-                info: AccessibilityNodeInfoCompat
-            ) {
-                super.onInitializeAccessibilityNodeInfo(host, info)
-                info.className = viewGroup.javaClass.simpleName
-            }
-        })
+        // 设置importantForAccessibility
+        viewGroup.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
         
+        // 遍历子视图
         for (i in 0 until viewGroup.childCount) {
             val child = viewGroup.getChildAt(i)
-            if (child is ViewGroup) {
-                enhanceViewGroup(child, activity)
-            } else if (child != null) {
-                enhanceView(child, activity)
+            if (child != null) {
+                enhanceView(child, context)
             }
         }
     }
     
-    fun enhanceView(view: View, activity: Activity) {
-        if (!isAccessibilityEnabled(activity)) return
-        if (ViewCompat.getAccessibilityDelegate(view) != null) return
+    /**
+     * 增强单个视图的无障碍支持
+     */
+    fun enhanceView(view: View, context: Context) {
+        if (!isAccessibilityEnabled(context)) return
         
-        ViewCompat.setAccessibilityDelegate(view, object : AccessibilityDelegateCompat() {
-            override fun onInitializeAccessibilityNodeInfo(
-                host: View,
-                info: AccessibilityNodeInfoCompat
-            ) {
-                super.onInitializeAccessibilityNodeInfo(host, info)
-                info.roleDescription = getViewRole(view)
-                if (info.contentDescription.isNullOrEmpty()) {
-                    val desc = generateContentDescription(view)
-                    if (desc.isNotEmpty()) info.contentDescription = desc
-                }
-            }
-        })
+        // 确保视图可被无障碍服务访问
+        view.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
     }
     
     /**
@@ -63,39 +62,17 @@ object AccessibilityEnhancer {
     ) {
         if (!isAccessibilityEnabled(context)) return
         
-        ViewCompat.setAccessibilityDelegate(view, object : AccessibilityDelegateCompat() {
-            override fun onInitializeAccessibilityNodeInfo(
-                host: View,
-                info: AccessibilityNodeInfoCompat
-            ) {
-                super.onInitializeAccessibilityNodeInfo(host, info)
-                info.roleDescription = "阅读页面"
-                info.contentDescription = "第${pageNumber}页，共${totalPages}页"
-            }
-        })
+        view.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
+        view.contentDescription = "第${pageNumber}页，共${totalPages}页"
     }
     
-    private fun isAccessibilityEnabled(context: Context): Boolean {
-        return try {
-            val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) 
-                as android.view.accessibility.AccessibilityManager
-            am.isEnabled
-        } catch (e: Exception) { false }
-    }
-    
-    private fun getViewRole(view: View): String = when (view) {
-        is android.widget.Button -> "按钮"
-        is android.widget.TextView -> "文本"
-        is android.widget.ImageView -> "图片"
-        is android.widget.EditText -> "输入框"
-        is android.widget.CheckBox -> "复选框"
-        else -> ""
-    }
-
-    private fun generateContentDescription(view: View): String = when (view) {
-        is android.widget.ImageView -> if (!view.contentDescription.isNullOrEmpty()) 
-            view.contentDescription.toString() else "[图片]"
-        is android.widget.TextView -> view.text?.toString()?.trim()?.take(50) ?: ""
-        else -> ""
+    /**
+     * 为ReadView设置无障碍支持
+     */
+    fun enhanceReadView(view: View, context: Context, showMenuLabel: String) {
+        if (!isAccessibilityEnabled(context)) return
+        
+        view.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
+        view.contentDescription = "阅读视图，$showMenuLabel"
     }
 }
