@@ -37,7 +37,7 @@ class AccessibilityService : AccessibilityService() {
             notificationTimeout = 100
             canRetrieveWindowContent = true
         }
-        serviceInfo = info
+        setServiceInfo(info)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
