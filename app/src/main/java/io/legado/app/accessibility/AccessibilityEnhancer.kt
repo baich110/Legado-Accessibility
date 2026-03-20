@@ -2,6 +2,7 @@ package io.legado.app.accessibility
 
 import android.app.Activity
 import android.content.Context
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.AccessibilityDelegateCompat
@@ -52,9 +53,50 @@ object AccessibilityEnhancer {
         })
     }
     
-    private fun isAccessibilityEnabled(activity: Activity): Boolean {
+    /**
+     * 增强阅读页面视图的无障碍支持
+     */
+    fun enhanceReadingPageView(
+        view: View,
+        context: Context,
+        pageNumber: Int,
+        totalPages: Int
+    ) {
+        if (!isAccessibilityEnabled(context)) return
+        
+        ViewCompat.setAccessibilityDelegate(view, object : AccessibilityDelegateCompat() {
+            override fun onInitializeAccessibilityNodeInfo(
+                host: View,
+                info: AccessibilityNodeInfoCompat
+            ) {
+                super.onInitializeAccessibilityNodeInfo(host, info)
+                info.roleDescription = "阅读页面"
+                info.contentDescription = "第${pageNumber}页，共${totalPages}页"
+                
+                // 添加页面导航操作
+                if (pageNumber > 1) {
+                    info.addAction(
+                        AccessibilityNodeInfoCompat.AccessibilityActionCompat(
+                            android.view.accessibility.AccessibilityNodeInfo.ACTION_PAGE_LEFT,
+                            "上一页"
+                        )
+                    )
+                }
+                if (pageNumber < totalPages) {
+                    info.addAction(
+                        AccessibilityNodeInfoCompat.AccessibilityActionCompat(
+                            android.view.accessibility.AccessibilityNodeInfo.ACTION_PAGE_RIGHT,
+                            "下一页"
+                        )
+                    )
+                }
+            }
+        })
+    }
+    
+    private fun isAccessibilityEnabled(context: Context): Boolean {
         return try {
-            val am = activity.getSystemService(Context.ACCESSIBILITY_SERVICE) 
+            val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) 
                 as android.view.accessibility.AccessibilityManager
             am.isEnabled
         } catch (e: Exception) { false }
@@ -68,7 +110,7 @@ object AccessibilityEnhancer {
         is android.widget.CheckBox -> "复选框"
         else -> ""
     }
-    
+
     private fun generateContentDescription(view: View): String = when (view) {
         is android.widget.ImageView -> if (!view.contentDescription.isNullOrEmpty()) 
             view.contentDescription.toString() else "[图片]"
