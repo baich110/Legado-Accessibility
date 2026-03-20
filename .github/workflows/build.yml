@@ -1,50 +1,45 @@
 name: Build APK
 on:
   push:
-    branches: [master, main]
-  workflow_dispatch:
+    branches: [master]
+  delete:
+    branches: [master]
+  release:
+    types: [published]
+
+concurrency:
+  group: build_app
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        
-      - name: Set up JDK 17
+      - name: Set up Java JDK
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-          
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-      
-      - name: Install required SDK components
+        uses: android-actions/setup-android@v3
+
+      - name: Build Release APK
+        env:
+          ANDROID_HOME: /opt/android-sdk
+          ANDROID_SDK_ROOT: /opt/android-sdk
         run: |
-          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" 2>&1 || true
-          
-      - name: Clean build cache
-        run: |
-          chmod +x ./gradlew
-          ./gradlew clean --no-build-cache --no-configuration-cache --no-daemon 2>&1
-          
-      - name: Build with Gradle
-        run: |
-          ./gradlew assembleDebug --no-daemon --no-build-cache --stacktrace 2>&1
+          export ANDROID_HOME=/opt/android-sdk
+          export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
+          ./gradlew assembleRelease --no-daemon
         timeout-minutes: 60
-        
-      - name: Find APK
-        id: find_apk
-        run: |
-          APK=$(find app/build/outputs/apk -name "*.apk" 2>/dev/null | head -1)
-          echo "apk_path=$APK" >> $GITHUB_OUTPUT
-          echo "Found APK: $APK"
-          ls -la app/build/outputs/apk/ 2>/dev/null || echo "No apk directory"
 
       - name: Upload APK
-        if: steps.find_apk.outputs.apk_path != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifacts@v4
         with:
           name: Legado-APK
-          path: app/build/outputs/apk/**/*.apk
-          retention-days: 7
+          path: app/build/outputs/apk/release/*.apk
+          retention-days: 30
