@@ -772,12 +772,12 @@ class ReadView(context: Context, attrs: AttributeSet) :
         ViewCompat.setAccessibilityDelegate(this, object : AccessibilityDelegateCompat() {
             override fun performAccessibilityAction(host: android.view.View, action: Int, args: android.os.Bundle?): Boolean {
                 when (action) {
-                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_CLICK -> {
+                    android.R.id.accessibilityActionClick -> {
                         // 当读屏用户点击时，呼出菜单
                         callBack.showActionMenu()
                         return true
                     }
-                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_LONG_CLICK -> {
+                    android.R.id.accessibilityActionLongClick -> {
                         // 长按操作：选择文本
                         onLongPress()
                         return true
@@ -790,11 +790,11 @@ class ReadView(context: Context, attrs: AttributeSet) :
                 super.onInitializeAccessibilityNodeInfo(host, info)
                 // 添加自定义操作描述
                 info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_CLICK,
+                    android.R.id.accessibilityActionClick,
                     context.getString(R.string.a11y_action_show_menu)
                 ))
                 info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_LONG_CLICK,
+                    android.R.id.accessibilityActionLongClick,
                     context.getString(R.string.a11y_action_select_text)
                 ))
             }
