@@ -12,12 +12,12 @@
 
 ## 下载安装
 
-### 最新版本
-[![Download APK](https://img.shields.io/badge/Download-APK-blue?style=for-the-badge)](https://github.com/baich110/Legado-Accessibility/releases/latest/download/Legado-Accessibility-v3.24.0320.apk)
+### 最新版本 (v3.24.0320 - Release)
+**APK 大小**: ~12 MB
 
-**版本**: v3.24.0320  
-**APK 大小**: ~28 MB  
-**下载链接**: [点击下载 Legado-Accessibility-v3.24.0320.apk](https://github.com/baich110/Legado-Accessibility/releases/download/v3.24.0320/Legado-Accessibility-v3.24.0320.apk)
+[![Download APK](https://img.shields.io/badge/Download-APK-blue?style=for-the-badge)](https://github.com/baich110/Legado-Accessibility/releases/download/v3.24.0320/Legado-Accessibility-v3.24.0320-release.apk)
+
+**下载链接**: [Legado-Accessibility-v3.24.0320-release.apk](https://github.com/baich110/Legado-Accessibility/releases/download/v3.24.0320/Legado-Accessibility-v3.24.0320-release.apk)
 
 ### 历史版本
 所有版本请访问 [Releases 页面](https://github.com/baich110/Legado-Accessibility/releases)
@@ -36,37 +36,11 @@
 - 点击阅读区域任意位置即可呼出**朗读控制菜单**
 - 支持暂停、继续、调整语速等操作
 
-## 项目结构
-
-```
-Legado-Accessibility/
-├── app/                          # Android 应用模块
-│   └── src/main/
-│       ├── java/io/legado/app/   # 主要代码
-│       └── AndroidManifest.xml   # 应用配置
-├── .github/workflows/            # CI/CD 配置
-└── README.md                     # 项目说明
-```
-
-## 构建说明
-
-本项目使用 GitHub Actions 自动构建：
-- 每次 push 到 master 分支自动触发构建
-- 构建产物为 APK 文件
-- 可在 [Actions](https://github.com/baich110/Legado-Accessibility/actions) 页面查看构建历史
-
-## 技术栈
-
-- **语言**: Kotlin, Java
-- **构建工具**: Gradle
-- **CI/CD**: GitHub Actions
-- **目标平台**: Android 8.0+ (API 26+)
-
 ## 更新日志
 
 ### v3.24.0320 (2024-03-20)
 - 🔧 **修复**: 朗读模式下点击阅读区域可正确切换到朗读控制菜单
-- 优化触摸交互逻辑
+- ⚡ **优化**: Release 构建，APK 体积从 28MB 减小到 12MB
 
 ## 致谢
 
