@@ -12,8 +12,6 @@ import android.view.WindowInsets
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
-import androidx.core.view.accessibility.AccessibilityDelegateCompat
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import io.legado.app.R
 import io.legado.app.constant.PageAnim
 import io.legado.app.data.entities.BookProgress
@@ -749,56 +747,16 @@ class ReadView(context: Context, attrs: AttributeSet) :
         return ReadBook.durChapterIndex > 0
     }
 
-    /**
-     * 增强无障碍支持
-     * 专门为读屏用户添加菜单呼出功能
-     */
+     /**
+      * 增强无障碍支持
+      * 专门为读屏用户添加菜单呼出功能
+      */
     private fun enhanceAccessibility() {
         // 设置重要的无障碍标志
         importantForAccessibility = android.view.View.IMPORTANT_FOR_ACCESSIBILITY_YES
         
         // 设置内容描述
         contentDescription = context.getString(R.string.read_view_content_description)
-        
-        // 添加专门的无障碍操作：呼出菜单
-        ViewCompat.replaceAccessibilityAction(
-            this,
-            AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_CLICK,
-            context.getString(R.string.a11y_action_show_menu),
-            null
-        )
-        
-        // 添加自定义无障碍委托，处理无障碍点击
-        ViewCompat.setAccessibilityDelegate(this, object : AccessibilityDelegateCompat() {
-            override fun performAccessibilityAction(host: android.view.View, action: Int, args: android.os.Bundle?): Boolean {
-                when (action) {
-                    android.R.id.accessibilityActionClick -> {
-                        // 当读屏用户点击时，呼出菜单
-                        callBack.showActionMenu()
-                        return true
-                    }
-                    android.R.id.accessibilityActionLongClick -> {
-                        // 长按操作：选择文本
-                        onLongPress()
-                        return true
-                    }
-                }
-                return super.performAccessibilityAction(host, action, args)
-            }
-            
-            override fun onInitializeAccessibilityNodeInfo(host: android.view.View, info: AccessibilityNodeInfoCompat) {
-                super.onInitializeAccessibilityNodeInfo(host, info)
-                // 添加自定义操作描述
-                info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                    android.R.id.accessibilityActionClick,
-                    context.getString(R.string.a11y_action_show_menu)
-                ))
-                info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                    android.R.id.accessibilityActionLongClick,
-                    context.getString(R.string.a11y_action_select_text)
-                ))
-            }
-        })
     }
 
     interface CallBack {
