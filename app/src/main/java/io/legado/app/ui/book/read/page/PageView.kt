@@ -522,7 +522,7 @@ class PageView(context: Context) : FrameLayout(context) {
             // 添加文本选择操作
             ViewCompat.replaceAccessibilityAction(
                 this,
-                androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_CLICK,
+                androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_CLICK,
                 context.getString(R.string.a11y_action_select_text),
                 null
             )
@@ -530,7 +530,7 @@ class PageView(context: Context) : FrameLayout(context) {
             // 添加长按操作（用于显示更多选项）
             ViewCompat.replaceAccessibilityAction(
                 this,
-                androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_LONG_CLICK,
+                androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_LONG_CLICK,
                 context.getString(R.string.a11y_action_show_menu),
                 null
             )

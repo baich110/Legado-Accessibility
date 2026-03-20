@@ -763,7 +763,7 @@ class ReadView(context: Context, attrs: AttributeSet) :
         // 添加专门的无障碍操作：呼出菜单
         ViewCompat.replaceAccessibilityAction(
             this,
-            AccessibilityNodeInfoCompat.ACTION_CLICK,
+            AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_CLICK,
             context.getString(R.string.a11y_action_show_menu),
             null
         )
@@ -772,12 +772,12 @@ class ReadView(context: Context, attrs: AttributeSet) :
         ViewCompat.setAccessibilityDelegate(this, object : AccessibilityDelegateCompat() {
             override fun performAccessibilityAction(host: android.view.View, action: Int, args: android.os.Bundle?): Boolean {
                 when (action) {
-                    AccessibilityNodeInfoCompat.ACTION_CLICK -> {
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_CLICK -> {
                         // 当读屏用户点击时，呼出菜单
                         callBack.showActionMenu()
                         return true
                     }
-                    AccessibilityNodeInfoCompat.ACTION_LONG_CLICK -> {
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_LONG_CLICK -> {
                         // 长按操作：选择文本
                         onLongPress()
                         return true
@@ -786,15 +786,15 @@ class ReadView(context: Context, attrs: AttributeSet) :
                 return super.performAccessibilityAction(host, action, args)
             }
             
-            override fun onInitializeAccessibilityNodeInfo(host: android.view.View, info: AccessibilityNodeInfo) {
+            override fun onInitializeAccessibilityNodeInfo(host: android.view.View, info: AccessibilityNodeInfoCompat) {
                 super.onInitializeAccessibilityNodeInfo(host, info)
                 // 添加自定义操作描述
                 info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                    AccessibilityNodeInfoCompat.ACTION_CLICK,
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_CLICK,
                     context.getString(R.string.a11y_action_show_menu)
                 ))
                 info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                    AccessibilityNodeInfoCompat.ACTION_LONG_CLICK,
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_LONG_CLICK,
                     context.getString(R.string.a11y_action_select_text)
                 ))
             }
