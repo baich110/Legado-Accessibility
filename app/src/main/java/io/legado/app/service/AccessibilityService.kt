@@ -29,7 +29,7 @@ class AccessibilityService : AccessibilityService() {
             eventTypes = AccessibilityEvent.TYPE_VIEW_CLICKED or
                     AccessibilityEvent.TYPE_VIEW_FOCUSED or
                     AccessibilityEvent.TYPE_VIEW_LONG_CLICKED or
-                    AccessibilityEvent.TYPE_VIEW_TEXT_CHICKED or
+                    AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED or
                     AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or
                     AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or
                     AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED

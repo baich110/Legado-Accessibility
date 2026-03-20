@@ -789,11 +789,11 @@ class ReadView(context: Context, attrs: AttributeSet) :
             override fun onInitializeAccessibilityNodeInfo(host: android.view.View, info: AccessibilityNodeInfo) {
                 super.onInitializeAccessibilityNodeInfo(host, info)
                 // 添加自定义操作描述
-                info.addAction(AccessibilityNodeInfo.AccessibilityAction(
+                info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
                     AccessibilityNodeInfoCompat.ACTION_CLICK,
                     context.getString(R.string.a11y_action_show_menu)
                 ))
-                info.addAction(AccessibilityNodeInfo.AccessibilityAction(
+                info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat(
                     AccessibilityNodeInfoCompat.ACTION_LONG_CLICK,
                     context.getString(R.string.a11y_action_select_text)
                 ))
