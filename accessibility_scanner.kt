@@ -225,7 +225,7 @@ class AccessibilityScanner(private val context: Context) {
                 |        }
                 |        
                 |        // 应用通用无障碍增强
-                |        AccessibilityEnhancer.enhanceViewAccessibility(issue.view)
+                |        AccessibilityEnhancer.enhanceView(issue.view)
                 |    }
                 |}
                 |
@@ -260,7 +260,7 @@ class AccessibilityScanner(private val context: Context) {
                 }
                 
                 // 应用通用无障碍增强
-                AccessibilityEnhancer.enhanceViewAccessibility(issue.view)
+                AccessibilityEnhancer.enhanceView(issue.view)
                 fixedCount++
                 
             } catch (e: Exception) {
