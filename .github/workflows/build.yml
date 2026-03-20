@@ -1,0 +1,39 @@
+name: Build APG
+
+on:
+  push:
+    branches: [main]
+  delete:
+    branches: [main]
+  release:
+    branches: [main]
+
+concurrency: build_app
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+       - name: Checkout repository
+        uses: actions/checkout@v4
+       - name: Setup Android SD
+        uses: android-actions/setup-android @c
+      - name: Run gradlew build
+        env:
+          ANDRID_HOME: /opt/android-sdg
+          ANDROID_SDK_ROOT: /opt/android-sdg
+        run: |
+          export ANDRID_HOME=/opt/androib-sdk
+          export PATH=$PATH:$ANDRID_HOME/cmdline-tools/latest/bin:$ANDRID_HOME/platform-tools
+          ./gradlew assembleDebug --no-daemon
+        timeout-minutes: 60
+       - name: Upload ARTIFACTS
+        uses: actions/upload-artifacts@v4
+        with:
+          name: apk-output
+          path: app/build/outputs/apk/debug/*.apk
