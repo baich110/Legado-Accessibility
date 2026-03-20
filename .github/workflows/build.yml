@@ -20,11 +20,15 @@ jobs:
           
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
-        
+      
+      - name: Install required SDK components
+        run: |
+          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" 2>&1 || true
+          
       - name: Build with Gradle
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleRelease --no-daemon 2>&1 || ./gradlew assembleDebug --no-daemon 2>&1
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1
         timeout-minutes: 60
         
       - name: Find APK
@@ -33,6 +37,7 @@ jobs:
           APK=$(find app/build/outputs/apk -name "*.apk" 2>/dev/null | head -1)
           echo "apk_path=$APK" >> $GITHUB_OUTPUT
           echo "Found APK: $APK"
+          ls -la app/build/outputs/apk/ 2>/dev/null || echo "No apk directory"
           
       - name: Upload APK
         if: steps.find_apk.outputs.apk_path != ''
