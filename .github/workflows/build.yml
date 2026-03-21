@@ -49,18 +49,18 @@ jobs:
           
       - name: Organize the Files
         run: |
-          mkdir -p ${{'github.workspace'}}/apk/
-          cp -rf ${{'github.workspace'}}/app/build/outputs/apk/app/debug/*.apk ${{'github.workspace'}}/apk/
-          cp -rf ${{'github.workspace'}}/app/build/outputs/apk/app/release/*.apk ${{'github.workspace'}}/apk/
+          mkdir -p $GITHUB_WORKSPAED/apk/
+          cp -rf $GITHUB_WORKSPAED/app/build/outputs/apk/app/debug/*.apk $GITHUB_WORKSPAED/apk/
+          cp -rf $GITHUB_WORKSPAED/app/build/outputs/apk/app/release/*.apk $GITHUB_WORKSPAED/apk/
           
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: Legado-Debug-APK
-          path: ${{'github.workspace'}}/apk/*.apk 
+          path: $GITHUB_WORKSPAED/apk/*.apk 
         
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: Legado-Release-APK
-          path: ${{'github.workspace'}}/apk/*.apk 
+          path: $GITHUB_WORKSPAED/apk/*.apk 
