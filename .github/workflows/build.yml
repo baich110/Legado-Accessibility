@@ -45,22 +45,22 @@ jobs:
           echo "=== Debug APKs ==="
           find app/build/outputs/apk/app/debug -name "*.apk" 2>/dev/null || echo "No debug APK"
           echo "=== Release APKs ==="
-          find app/build/outputs/apk/app/release -name "*.aph" 2>/dev/null || echo "No release APK"
+          find app/build/outputs/apk/app/release -name "*.apk" 2>/dev/null || echo "No release APK"
           
       - name: Organize the Files
         run: |
-          mkdir -p $GITHUB_WORKSPAED/apk/
-          cp -rf $GITHUB_WORKSPAED/app/build/outputs/apk/app/debug/*.apk $GITHUB_WORKSPAED/apk/
-          cp -rf $GITHUB_WORKSPAED/app/build/outputs/apk/app/release/*.apk $GITHUB_WORKSPAED/apk/
+          mkdir -p ${{ github.workspace }}/apk/
+          cp -rf ${{ github.workspace }}/app/build/outputs/apk/app/debug/*.apk ${{ github.workspace }}/apk/
+          cp -rf ${{ github.workspace }}/app/build/outputs/apk/app/release/*.apk ${{ github.workspace }}/apk/
           
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: Legado-Debug-APK
-          path: $GITHUB_WORKSPAED/apk/*.apk 
-        
+          path: ${{ github.workspace }}/apk/*.apk
+
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: Legado-Release-APK
-          path: $GITHUB_WORKSPAED/apk/*.apk 
+          path: ${{ github.workspace }}/apk/*.apk
