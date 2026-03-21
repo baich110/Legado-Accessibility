@@ -1311,4 +1311,19 @@
     <string name="a11y_reading_page_content">Page %1$d of %2$d, book content</string>
     <string name="read_view_content_description">Reading view, double tap to show menu</string>
     
+    <!-- TTS Voice Selector Dialog Strings -->
+    <string name="tts_voice_select">Voice Settings</string>
+    <string name="tts_voice_type">Voice Type</string>
+    <string name="tts_pitch">Pitch</string>
+    <string name="tts_speed">Speed</string>
+    <string name="tts_preview">Preview</string>
+    <string name="tts_playing">Playing…</string>
+    <string name="tts_voice_not_selected">No voice selected</string>
+    <string name="tts_engine_not_available">TTS engine not available</string>
+    <string name="tts_accessibility_hint">Use volume keys to adjust settings</string>
+    <string name="a11y_adjust_voice_type">Adjust voice type</string>
+    <string name="a11y_adjust_pitch">Adjust pitch</string>
+    <string name="a11y_adjust_speed">Adjust speed</string>
+    <string name="a11y_current_voice">Current voice</string>
+    
 </resources>
