@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:minHeight="300dp"
+    android:padding="16dp">
+
+    <!-- 标题区域 -->
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/speak_engine"
+        android:textSize="20sp"
+        android:textColor="@color/primaryText"
+        android:textStyle="bold"
+        android:paddingBottom="16dp"
+        android:importantForAccessibility="yes" />
+
+    <!-- 系统语音选择区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/tv_sys_tts_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sys_tts_engine"
+            android:textSize="14sp"
+            android:textColor="@color/secondaryText"
+            android:paddingBottom="8dp"
+            android:importantForAccessibility="yes" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_sys_tts"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/select_sys_tts"
+            app:helperText="@string/sys_tts_help"
+            app:helperTextEnabled="true">
+
+            <AutoCompleteTextView
+                android:id="@+id/spinner_sys_tts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:focusable="false"
+                android:contentDescription="@string/select_sys_tts_desc"
+                tools:ignore="LabelFor" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+    <!-- 第三方语音引擎选择区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/tv_http_tts_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/http_tts_engine"
+            android:textSize="14sp"
+            android:textColor="@color/secondaryText"
+            android:paddingBottom="8dp"
+            android:importantForAccessibility="yes" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_http_tts"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/select_http_tts"
+            app:helperText="@string/http_tts_help"
+            app:helperTextEnabled="true">
+
+            <AutoCompleteTextView
+                android:id="@+id/spinner_http_tts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:focusable="false"
+                android:contentDescription="@string/select_http_tts_desc"
+                tools:ignore="LabelFor" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+
+    <!-- 分隔线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"
+        android:layout_marginVertical="8dp" />
+
+    <!-- 管理第三方引擎标题 -->
+    <TextView
+        android:id="@+id/tv_manage_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/manage_http_tts_title"
+        android:textSize="16sp"
+        android:textColor="@color/primaryText"
+        android:textStyle="bold"
+        android:paddingVertical="8dp"
+        android:importantForAccessibility="yes" />
+
+    <!-- 第三方引擎列表 (RecyclerView) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_http_tts_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:minHeight="100dp"
+        android:maxHeight="200dp"
+        android:importantForAccessibility="yes" />
+
+    <!-- 空状态提示 -->
+    <TextView
+        android:id="@+id/tv_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_http_tts_engine"
+        android:textSize="14sp"
+        android:textColor="@color/secondaryText"
+        android:gravity="center"
+        android:padding="24dp"
+        android:visibility="gone"
+        android:importantForAccessibility="yes" />
+
+    <!-- 底部操作按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="12dp"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_add_engine"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_engine"
+            android:contentDescription="@string/add_engine_desc"
+            app:icon="@drawable/ic_add"
+            app:iconGravity="textStart" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_import_default"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/import_default"
+            android:contentDescription="@string/import_default_desc"
+            app:icon="@drawable/ic_import"
+            app:iconGravity="textStart" />
+
+    </LinearLayout>
+
+    <!-- 提示文字 -->
+    <TextView
+        android:id="@+id/tv_tip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/tts_engine_tip"
+        android:textSize="12sp"
+        android:textColor="@color/secondaryText"
+        android:paddingTop="8dp"
+        android:importantForAccessibility="yes" />
+
+</LinearLayout>

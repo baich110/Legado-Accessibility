@@ -1,291 +1,354 @@
 package io.legado.app.ui.book.read.config
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
-import androidx.appcompat.widget.Toolbar
+import android.widget.ArrayAdapter
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.legado.app.R
 import io.legado.app.base.BaseDialogFragment
-import io.legado.app.base.adapter.ItemViewHolder
-import io.legado.app.base.adapter.RecyclerAdapter
-import io.legado.app.constant.AppLog
 import io.legado.app.data.appDb
 import io.legado.app.data.entities.HttpTTS
-import io.legado.app.databinding.DialogEditTextBinding
-import io.legado.app.databinding.DialogRecyclerViewBinding
-import io.legado.app.databinding.ItemHttpTtsBinding
-import io.legado.app.help.DirectLinkUpload
+import io.legado.app.databinding.DialogSpeakEngineBinding
+import io.legado.app.databinding.ItemTtsEngineListBinding
 import io.legado.app.help.config.AppConfig
 import io.legado.app.lib.dialogs.SelectItem
 import io.legado.app.lib.dialogs.alert
-import io.legado.app.lib.theme.primaryColor
 import io.legado.app.model.ReadAloud
-import io.legado.app.model.ReadBook
-import io.legado.app.ui.association.ImportHttpTtsDialog
-import io.legado.app.ui.file.HandleFileContract
-import io.legado.app.ui.login.SourceLoginActivity
-import io.legado.app.utils.ACache
 import io.legado.app.utils.GSON
-import io.legado.app.utils.applyTint
 import io.legado.app.utils.fromJsonObject
-import io.legado.app.utils.gone
-import io.legado.app.utils.isAbsUrl
-import io.legado.app.utils.isJsonObject
-import io.legado.app.utils.sendToClip
-import io.legado.app.utils.setEdgeEffectColor
-import io.legado.app.utils.setLayout
 import io.legado.app.utils.showDialogFragment
-import io.legado.app.utils.splitNotBlank
-import io.legado.app.utils.startActivity
+import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.viewbindingdelegate.viewBinding
-import io.legado.app.utils.visible
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 /**
- * tts引擎管理
+ * 语音引擎选择对话框 - 无障碍适配版
+ * 提供两个下拉框：系统语音和第三方语音引擎
+ * 集成第三方引擎管理界面，支持无障碍操作
  */
-class SpeakEngineDialog() : BaseDialogFragment(R.layout.dialog_recycler_view),
-    Toolbar.OnMenuItemClickListener {
+class SpeakEngineDialog : BaseDialogFragment(R.layout.dialog_speak_engine) {
 
-    private val binding by viewBinding(DialogRecyclerViewBinding::bind)
+    private val binding by viewBinding(DialogSpeakEngineBinding::bind)
     private val viewModel: SpeakEngineViewModel by viewModels()
-    private val ttsUrlKey = "ttsUrlKey"
-    private val adapter by lazy { Adapter(requireContext()) }
-    private var ttsEngine: String? = ReadAloud.ttsEngine
-    private val sysTtsViews = arrayListOf<RadioButton>()
-    private val callBack: CallBack? get() = parentFragment as? CallBack
-    private val importDocResult = registerForActivityResult(HandleFileContract()) {
-        it.uri?.let { uri ->
-            showDialogFragment(ImportHttpTtsDialog(uri.toString()))
-        }
-    }
-    private val exportDirResult = registerForActivityResult(HandleFileContract()) {
-        it.uri?.let { uri ->
-            alert(R.string.export_success) {
-                if (uri.toString().isAbsUrl()) {
-                    setMessage(DirectLinkUpload.getSummary())
-                }
-                val alertBinding = DialogEditTextBinding.inflate(layoutInflater).apply {
-                    editView.hint = getString(R.string.path)
-                    editView.setText(uri.toString())
-                }
-                customView { alertBinding.root }
-                okButton {
-                    requireContext().sendToClip(uri.toString())
-                }
-            }
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        setLayout(ViewGroup.LayoutParams.MATCH_PARENT, 0.9f)
-    }
-
+    
+    private var selectedSysEngine: String? = null  // 系统引擎名称
+    private var selectedHttpTtsId: Long? = null    // 第三方引擎ID
+    
+    private var sysEngineAdapter: ArrayAdapter<String>? = null
+    private var httpTtsAdapter: HttpTtsSelectAdapter? = null
+    private var httpTtsListAdapter: HttpTtsListAdapter? = null
+    
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         initView()
-        initMenu()
-        initData()
+        loadCurrentSelection()
+        loadHttpTtsList()
     }
 
-    private fun initView() = binding.run {
-        toolBar.setBackgroundColor(primaryColor)
-        toolBar.setTitle(R.string.speak_engine)
-        recyclerView.setEdgeEffectColor(primaryColor)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = adapter
-        adapter.addHeaderView {
-            ItemHttpTtsBinding.inflate(layoutInflater, recyclerView, false).apply {
-                sysTtsViews.add(cbName)
-                ivEdit.gone()
-                ivMenuDelete.gone()
-                labelSys.visible()
-                cbName.text = "系统默认"
-                cbName.tag = ""
-                cbName.isChecked = ttsEngine == null || ttsEngine!!.isJsonObject()
-                        && GSON.fromJsonObject<SelectItem<String>>(ttsEngine)
-                    .getOrNull()?.value.isNullOrEmpty()
-                cbName.setOnClickListener {
-                    upTts(GSON.toJson(SelectItem("系统默认", "")))
+    private fun initView() {
+        // 初始化系统语音下拉框
+        setupSysTtsSpinner()
+        
+        // 初始化第三方语音下拉框
+        setupHttpTtsSpinner()
+        
+        // 初始化第三方引擎列表
+        setupHttpTtsList()
+        
+        // 添加按钮
+        binding.btnAddEngine.setOnClickListener {
+            showDialogFragment<HttpTtsEditDialog>()
+        }
+        
+        // 导入默认按钮
+        binding.btnImportDefault.setOnClickListener {
+            viewModel.importDefault()
+            toastOnUi(getString(R.string.engine_added))
+        }
+    }
+
+    /**
+     * 设置系统语音下拉框
+     */
+    private fun setupSysTtsSpinner() {
+        val sysEngines = viewModel.sysEngines
+        val engineNames = mutableListOf(getString(R.string.system_default))
+        engineNames.addAll(sysEngines.map { it.label })
+        
+        sysEngineAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            engineNames
+        )
+        
+        binding.spinnerSysTts.apply {
+            setAdapter(sysEngineAdapter)
+            setOnItemClickListener { _, _, position, _ ->
+                selectedSysEngine = if (position == 0) {
+                    null
+                } else {
+                    sysEngines.getOrNull(position - 1)?.name
                 }
+                // 选择系统语音时，清空第三方选择
+                if (selectedSysEngine != null) {
+                    binding.spinnerHttpTts.setText(getString(R.string.none), false)
+                    selectedHttpTtsId = null
+                }
+                updateTtsEngine()
             }
         }
-        viewModel.sysEngines.forEach { engine ->
-            adapter.addHeaderView {
-                ItemHttpTtsBinding.inflate(layoutInflater, recyclerView, false).apply {
-                    sysTtsViews.add(cbName)
-                    ivEdit.gone()
-                    ivMenuDelete.gone()
-                    labelSys.visible()
-                    cbName.text = engine.label
-                    cbName.tag = engine.name
-                    cbName.isChecked = GSON.fromJsonObject<SelectItem<String>>(ttsEngine)
-                        .getOrNull()?.value == cbName.tag
-                    cbName.setOnClickListener {
-                        upTts(GSON.toJson(SelectItem(engine.label, engine.name)))
-                    }
-                }
+    }
+
+    /**
+     * 设置第三方语音引擎下拉框（用于选择）
+     */
+    private fun setupHttpTtsSpinner() {
+        httpTtsAdapter = HttpTtsSelectAdapter(requireContext(), mutableListOf())
+        binding.spinnerHttpTts.setAdapter(httpTtsAdapter)
+        
+        binding.spinnerHttpTts.setOnItemClickListener { _, _, position, _ ->
+            val httpTts = httpTtsAdapter?.getItem(position)
+            if (httpTts != null && httpTts.id != -1L) {
+                selectedHttpTtsId = httpTts.id
+                // 选择第三方语音时，清空系统选择
+                binding.spinnerSysTts.setText(getString(R.string.none), false)
+                selectedSysEngine = null
+            } else {
+                selectedHttpTtsId = null
             }
-        }
-        tvFooterLeft.setText(R.string.book)
-        tvFooterLeft.visible()
-        tvFooterLeft.setOnClickListener {
-            ReadBook.book?.setTtsEngine(ttsEngine)
-            callBack?.upSpeakEngineSummary()
-            ReadAloud.upReadAloudClass()
-            dismissAllowingStateLoss()
-        }
-        tvOk.setText(R.string.general)
-        tvOk.visible()
-        tvOk.setOnClickListener {
-            ReadBook.book?.setTtsEngine(null)
-            AppConfig.ttsEngine = ttsEngine
-            callBack?.upSpeakEngineSummary()
-            ReadAloud.upReadAloudClass()
-            dismissAllowingStateLoss()
-        }
-        tvCancel.visible()
-        tvCancel.setOnClickListener {
-            dismissAllowingStateLoss()
+            updateTtsEngine()
         }
     }
 
-    private fun initMenu() = binding.run {
-        toolBar.inflateMenu(R.menu.speak_engine)
-        toolBar.menu.applyTint(requireContext())
-        toolBar.setOnMenuItemClickListener(this@SpeakEngineDialog)
+    /**
+     * 设置第三方引擎列表（用于管理）
+     */
+    private fun setupHttpTtsList() {
+        httpTtsListAdapter = HttpTtsListAdapter(
+            requireContext(),
+            onEditClick = { httpTts ->
+                showDialogFragment(HttpTtsEditDialog(httpTts.id))
+            },
+            onDeleteClick = { httpTts ->
+                showDeleteConfirmDialog(httpTts)
+            }
+        )
+        
+        binding.rvHttpTtsList.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = httpTtsListAdapter
+        }
     }
 
-    private fun initData() {
+    /**
+     * 显示删除确认对话框
+     */
+    private fun showDeleteConfirmDialog(httpTts: HttpTTS) {
+        alert(R.string.delete_confirm_title, getString(R.string.delete_confirm_message, httpTts.name)) {
+            positiveButton(R.string.delete) {
+                deleteHttpTts(httpTts)
+            }
+            negativeButton(R.string.cancel, null)
+        }.show()
+    }
+
+    /**
+     * 删除第三方引擎
+     */
+    private fun deleteHttpTts(httpTts: HttpTTS) {
         lifecycleScope.launch {
-            appDb.httpTTSDao.flowAll().catch {
-                AppLog.put("朗读引擎界面获取数据失败\n${it.localizedMessage}", it)
-            }.flowOn(IO).conflate().collect {
-                adapter.setItems(it)
+            appDb.httpTTSDao.delete(httpTts)
+            // 如果删除的是当前选中的，清空选择
+            if (selectedHttpTtsId == httpTts.id) {
+                selectedHttpTtsId = null
+                binding.spinnerHttpTts.setText(getString(R.string.none), false)
+                updateTtsEngine()
             }
+            toastOnUi(getString(R.string.engine_deleted))
         }
     }
 
-    override fun onMenuItemClick(item: MenuItem?): Boolean {
-        when (item?.itemId) {
-            R.id.menu_add -> showDialogFragment<HttpTtsEditDialog>()
-            R.id.menu_default -> viewModel.importDefault()
-            R.id.menu_import_local -> importDocResult.launch {
-                mode = HandleFileContract.FILE
-                allowExtensions = arrayOf("txt", "json")
+    /**
+     * 加载当前选择状态
+     */
+    private fun loadCurrentSelection() {
+        val ttsEngine = ReadAloud.ttsEngine
+        
+        when {
+            ttsEngine.isNullOrEmpty() -> {
+                binding.spinnerSysTts.setText(getString(R.string.system_default), false)
+                selectedSysEngine = null
+                selectedHttpTtsId = null
             }
-
-            R.id.menu_import_onLine -> importAlert()
-            R.id.menu_export -> exportDirResult.launch {
-                mode = HandleFileContract.EXPORT
-                fileData = HandleFileContract.FileData(
-                    "httpTts.json",
-                    GSON.toJson(adapter.getItems()).toByteArray(),
-                    "application/json"
-                )
-            }
-        }
-        return true
-    }
-
-    private fun importAlert() {
-        val aCache = ACache.get(cacheDir = false)
-        val cacheUrls: MutableList<String> = aCache
-            .getAsString(ttsUrlKey)
-            ?.splitNotBlank(",")
-            ?.toMutableList() ?: mutableListOf()
-        alert(R.string.import_on_line) {
-            val alertBinding = DialogEditTextBinding.inflate(layoutInflater).apply {
-                editView.hint = "url"
-                editView.setFilterValues(cacheUrls)
-                editView.delCallBack = {
-                    cacheUrls.remove(it)
-                    aCache.put(ttsUrlKey, cacheUrls.joinToString(","))
-                }
-            }
-            customView { alertBinding.root }
-            okButton {
-                alertBinding.editView.text?.toString()?.let { url ->
-                    if (url.isAbsUrl() && !cacheUrls.contains(url)) {
-                        cacheUrls.add(0, url)
-                        aCache.put(ttsUrlKey, cacheUrls.joinToString(","))
+            ttsEngine.isJsonObject() -> {
+                val item = GSON.fromJsonObject<SelectItem<String>>(ttsEngine).getOrNull()
+                if (item != null) {
+                    if (item.value.isNullOrEmpty()) {
+                        binding.spinnerSysTts.setText(getString(R.string.system_default), false)
+                    } else {
+                        selectedSysEngine = item.value
+                        binding.spinnerSysTts.setText(item.title, false)
                     }
-                    showDialogFragment(ImportHttpTtsDialog(url))
                 }
+                selectedHttpTtsId = null
             }
-        }
-    }
-
-    private fun upTts(tts: String) {
-        ttsEngine = tts
-        sysTtsViews.forEach {
-            it.isChecked = GSON.fromJsonObject<SelectItem<String>>(ttsEngine)
-                .getOrNull()?.value == it.tag
-        }
-        adapter.notifyItemRangeChanged(adapter.getHeaderCount(), adapter.itemCount)
-    }
-
-    inner class Adapter(context: Context) :
-        RecyclerAdapter<HttpTTS, ItemHttpTtsBinding>(context) {
-
-        override fun getViewBinding(parent: ViewGroup): ItemHttpTtsBinding {
-            return ItemHttpTtsBinding.inflate(inflater, parent, false)
-        }
-
-        override fun convert(
-            holder: ItemViewHolder,
-            binding: ItemHttpTtsBinding,
-            item: HttpTTS,
-            payloads: MutableList<Any>
-        ) {
-            binding.apply {
-                cbName.text = item.name
-                cbName.isChecked = item.id.toString() == ttsEngine
-            }
-        }
-
-        override fun registerListener(holder: ItemViewHolder, binding: ItemHttpTtsBinding) {
-            binding.run {
-                cbName.setOnClickListener {
-                    getItemByLayoutPosition(holder.layoutPosition)?.let { httpTTS ->
-                        val id = httpTTS.id.toString()
-                        upTts(id)
-                        if (!httpTTS.loginUrl.isNullOrBlank()
-                            && httpTTS.getLoginInfo().isNullOrBlank()
-                        ) {
-                            startActivity<SourceLoginActivity> {
-                                putExtra("type", "httpTts")
-                                putExtra("key", id)
-                            }
+            else -> {
+                val id = ttsEngine.toLongOrNull()
+                if (id != null) {
+                    selectedHttpTtsId = id
+                    lifecycleScope.launch {
+                        val name = appDb.httpTTSDao.getName(id)
+                        if (name != null) {
+                            binding.spinnerHttpTts.setText(name, false)
+                        } else {
+                            binding.spinnerHttpTts.setText(getString(R.string.none), false)
+                            selectedHttpTtsId = null
                         }
                     }
                 }
-                ivEdit.setOnClickListener {
-                    val id = getItemByLayoutPosition(holder.layoutPosition)!!.id
-                    showDialogFragment(HttpTtsEditDialog(id))
+                selectedSysEngine = null
+            }
+        }
+    }
+
+    /**
+     * 加载第三方语音引擎列表
+     */
+    private fun loadHttpTtsList() {
+        lifecycleScope.launch {
+            appDb.httpTTSDao.flowAll()
+                .catch { }
+                .flowOn(IO)
+                .collect { list ->
+                    httpTtsAdapter?.updateData(list)
+                    httpTtsListAdapter?.updateData(list)
+                    // 更新空状态
+                    binding.tvEmpty.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+                    binding.rvHttpTtsList.visibility = if (list.isEmpty()) View.GONE else View.VISIBLE
                 }
-                ivMenuDelete.setOnClickListener {
-                    getItemByLayoutPosition(holder.layoutPosition)?.let { httpTTS ->
-                        appDb.httpTTSDao.delete(httpTTS)
-                    }
+        }
+    }
+
+    /**
+     * 更新TTS引擎配置
+     */
+    private fun updateTtsEngine() {
+        val ttsEngine = when {
+            selectedSysEngine != null -> {
+                val engine = viewModel.sysEngines.find { it.name == selectedSysEngine }
+                GSON.toJson(SelectItem(engine?.label ?: selectedSysEngine, selectedSysEngine))
+            }
+            selectedHttpTtsId != null -> {
+                selectedHttpTtsId.toString()
+            }
+            else -> {
+                null
+            }
+        }
+        
+        ReadAloud.ttsEngine = ttsEngine
+        AppConfig.ttsEngine = ttsEngine
+    }
+
+    /**
+     * 第三方语音引擎选择适配器（用于下拉框）
+     */
+    inner class HttpTtsSelectAdapter(
+        context: Context,
+        private val items: MutableList<HttpTTS>
+    ) : ArrayAdapter<HttpTTS>(context, android.R.layout.simple_dropdown_item_1line, items) {
+        
+        init {
+            add(getNoneItem())
+        }
+        
+        private fun getNoneItem(): HttpTTS {
+            return HttpTTS().apply {
+                id = -1L
+                name = getString(R.string.none)
+            }
+        }
+        
+        fun updateData(newItems: List<HttpTTS>) {
+            items.clear()
+            items.add(getNoneItem())
+            items.addAll(newItems)
+            notifyDataSetChanged()
+        }
+        
+        override fun getItem(position: Int): HttpTTS? {
+            return if (position in 0 until count) items[position] else null
+        }
+    }
+
+    /**
+     * 第三方引擎列表适配器（用于管理界面）
+     * 无障碍友好的RecyclerView适配器
+     */
+    inner class HttpTtsListAdapter(
+        private val context: Context,
+        private val onEditClick: (HttpTTS) -> Unit,
+        private val onDeleteClick: (HttpTTS) -> Unit
+    ) : RecyclerView.Adapter<HttpTtsListAdapter.ViewHolder>() {
+        
+        private val items = mutableListOf<HttpTTS>()
+        
+        fun updateData(newItems: List<HttpTTS>) {
+            items.clear()
+            items.addAll(newItems)
+            notifyDataSetChanged()
+        }
+        
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val binding = ItemTtsEngineListBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false
+            )
+            return ViewHolder(binding)
+        }
+        
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            holder.bind(items[position])
+        }
+        
+        override fun getItemCount(): Int = items.size
+        
+        inner class ViewHolder(
+            private val binding: ItemTtsEngineListBinding
+        ) : RecyclerView.ViewHolder(binding.root) {
+            
+            fun bind(item: HttpTTS) {
+                binding.tvEngineName.text = item.name
+                
+                // 无障碍：设置整行内容的描述
+                binding.root.contentDescription = context.getString(
+                    R.string.delete_confirm_message, item.name
+                ).replace("?", "") + ", " + 
+                    context.getString(R.string.edit_engine_desc) + ", " + 
+                    context.getString(R.string.delete_engine_desc)
+                
+                binding.btnEdit.setOnClickListener {
+                    onEditClick(item)
+                }
+                
+                binding.btnDelete.setOnClickListener {
+                    onDeleteClick(item)
                 }
             }
         }
-
     }
 
-    interface CallBack {
-        fun upSpeakEngineSummary()
+    companion object {
+        const val TAG = "SpeakEngineDialog"
     }
-
 }

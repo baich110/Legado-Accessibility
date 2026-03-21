@@ -579,6 +579,29 @@
     <string name="brightness_auto">Auto-Brightness %s</string>
     <string name="read_aloud_by_page">Speak by pages</string>
     <string name="speak_engine">Speak Engine</string>
+    <string name="sys_tts_engine">System Voice</string>
+    <string name="http_tts_engine">Third-party Voice Engine</string>
+    <string name="select_sys_tts">Select system voice</string>
+    <string name="select_http_tts">Select third-party voice engine</string>
+    <string name="select_sys_tts_desc">System voice selector, double tap to expand and choose</string>
+    <string name="select_http_tts_desc">Third-party voice engine selector, double tap to expand and choose</string>
+    <string name="sys_tts_help">Choose a system TTS voice</string>
+    <string name="http_tts_help">Choose an imported HTTP TTS engine</string>
+    <string name="manage_tts_engines">Manage Voice Engines</string>
+    <string name="manage_tts_engines_desc">Add, edit, or delete third-party voice engines</string>
+    <string name="tts_engine_tip">System voice and third-party voice are mutually exclusive. When a third-party voice engine is selected, it will be used preferentially.</string>
+    <string name="none">None</string>
+    <string name="manage_http_tts_title">Manage third-party voice engines</string>
+    <string name="no_http_tts_engine">No third-party voice engines. Tap \"Add\" to import.</string>
+    <string name="add_engine">Add</string>
+    <string name="add_engine_desc">Add new third-party voice engine</string>
+    <string name="import_default_desc">Import default third-party voice engines</string>
+    <string name="edit_engine_desc">Edit this voice engine</string>
+    <string name="delete_engine_desc">Delete this voice engine</string>
+    <string name="delete_confirm_title">Delete voice engine</string>
+    <string name="delete_confirm_message">Are you sure you want to delete \"%s\"?</string>
+    <string name="engine_deleted">Voice engine deleted</string>
+    <string name="engine_added">Voice engine added</string>
     <string name="bg_image">Background images</string>
     <string name="bg_color">Background color</string>
     <string name="text_color">Text color</string>
@@ -667,6 +690,7 @@
     <string name="share_layout">Shared layout</string>
     <string name="browser">Browser</string>
     <string name="import_default_rule">Import default rules</string>
+    <string name="import_default">Import default</string>
     <string name="name">Name</string>
     <string name="regex">Regex</string>
     <string name="example">Example</string>
@@ -852,6 +876,7 @@
     <string name="use_zh_layout">Custom Chinese line feed</string>
     <string name="image_style">Style of Images</string>
     <string name="system_tts">System tts</string>
+    <string name="system_default">System default</string>
     <string name="export_type">Exported file format</string>
     <string name="checkAuthor">Check by author</string>
     <string name="url_already">This URL has subscribed</string>
@@ -1283,28 +1308,5 @@
     <string name="page_info">Page information</string>
     <string name="a11y_reading_page_content">Page %1$d of %2$d, book content</string>
     <string name="read_view_content_description">Reading view, double tap to show menu</string>
-    
-    <!-- Accessibility Service -->
-    <string name="accessibility_service_description">Legado阅读器无障碍服务，为视障用户提供朗读、导航和屏幕阅读器支持</string>
-    <string name="accessibility_play">朗读</string>
-    <string name="accessibility_pause">暂停朗读</string>
-    <string name="accessibility_resume">继续朗读</string>
-    <string name="accessibility_stop">停止朗读</string>
-    <string name="accessibility_speed_up">加快语速</string>
-    <string name="accessibility_speed_down">减慢语速</string>
-    <string name="accessibility_next_element">下一个元素</string>
-    <string name="accessibility_previous_element">上一个元素</string>
-    <string name="accessibility_activate">确认选择</string>
-    <string name="accessibility_scroll_forward">向下滚动</string>
-    <string name="accessibility_scroll_backward">向上滚动</string>
-    <string name="accessibility_high_contrast">高对比度模式</string>
-    <string name="accessibility_large_text">大字体模式</string>
-    <string name="accessibility_invert_colors">颜色反转</string>
-    <string name="accessibility_talkback_enabled">屏幕阅读器已启用</string>
-    <string name="accessibility_gesture_hint">双指滑动可翻页</string>
-    <string name="accessibility_chapter_navigation">章节导航</string>
-    <string name="accessibility_bookmark_added">已添加书签</string>
-    <string name="accessibility_bookmark_removed">已删除书签</string>
-    <string name="accessibility_page_number">第%1$d页，共%2$d页</string>
     
 </resources>

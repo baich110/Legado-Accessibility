@@ -63,7 +63,6 @@ class ReadAloudConfigDialog : BasePrefDialogFragment() {
     }
 
     class ReadAloudPreferenceFragment : PreferenceFragment(),
-        SpeakEngineDialog.CallBack,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
         private val speakEngineSummary: String
