@@ -140,7 +140,7 @@ class ReadAloudConfigDialog : BasePrefDialogFragment() {
             }
         }
 
-        override fun upSpeakEngineSummary() {
+        fun upSpeakEngineSummary() {
             upPreferenceSummary(
                 findPreference(PreferKey.ttsEngine),
                 speakEngineSummary
