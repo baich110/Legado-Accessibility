@@ -330,12 +330,10 @@ class SpeakEngineDialog : BaseDialogFragment(R.layout.dialog_speak_engine) {
             fun bind(item: HttpTTS) {
                 binding.tvEngineName.text = item.name
                 
-                // 无障碍：设置整行内容的描述
+                // 无障碍：设置整行内容的描述，清晰告知用户这是哪个引擎以及可执行的操作
                 binding.root.contentDescription = context.getString(
-                    R.string.delete_confirm_message, item.name
-                ).replace("?", "") + ", " + 
-                    context.getString(R.string.edit_engine_desc) + ", " + 
-                    context.getString(R.string.delete_engine_desc)
+                    R.string.http_tts_item_desc, item.name
+                )
                 
                 binding.btnEdit.setOnClickListener {
                     onEditClick(item)

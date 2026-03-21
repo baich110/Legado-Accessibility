@@ -598,6 +598,7 @@
     <string name="import_default_desc">Import default third-party voice engines</string>
     <string name="edit_engine_desc">Edit this voice engine</string>
     <string name="delete_engine_desc">Delete this voice engine</string>
+    <string name="http_tts_item_desc">Third-party voice engine: %s. Double tap to select, tap edit button to modify, tap delete button to remove</string>
     <string name="delete_confirm_title">Delete voice engine</string>
     <string name="delete_confirm_message">Are you sure you want to delete \"%s\"?</string>
     <string name="engine_deleted">Voice engine deleted</string>
