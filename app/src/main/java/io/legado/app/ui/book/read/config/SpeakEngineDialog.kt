@@ -24,6 +24,7 @@ import io.legado.app.lib.dialogs.SelectItem
 import io.legado.app.lib.dialogs.alert
 import io.legado.app.model.ReadAloud
 import io.legado.app.utils.GSON
+import io.legado.app.utils.StringExtensions.isJsonObject
 import io.legado.app.utils.fromJsonObject
 import io.legado.app.utils.showDialogFragment
 import io.legado.app.utils.toastOnUi
@@ -155,11 +156,13 @@ class SpeakEngineDialog : BaseDialogFragment(R.layout.dialog_speak_engine) {
      * 显示删除确认对话框
      */
     private fun showDeleteConfirmDialog(httpTts: HttpTTS) {
-        alert(R.string.delete_confirm_title, getString(R.string.delete_confirm_message, httpTts.name)) {
+        val title = getString(R.string.delete_confirm_title)
+        val message = getString(R.string.delete_confirm_message, httpTts.name)
+        alert(title = title, message = message) {
             positiveButton(R.string.delete) {
                 deleteHttpTts(httpTts)
             }
-            negativeButton(R.string.cancel, null)
+            negativeButton(R.string.cancel)
         }.show()
     }
 
@@ -274,10 +277,10 @@ class SpeakEngineDialog : BaseDialogFragment(R.layout.dialog_speak_engine) {
         }
         
         private fun getNoneItem(): HttpTTS {
-            return HttpTTS().apply {
-                id = -1L
+            return HttpTTS(
+                id = -1L,
                 name = getString(R.string.none)
-            }
+            )
         }
         
         fun updateData(newItems: List<HttpTTS>) {
