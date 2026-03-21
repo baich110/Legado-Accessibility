@@ -260,7 +260,7 @@ class SpeakEngineDialog : BaseDialogFragment(R.layout.dialog_speak_engine) {
             }
         }
         
-        ReadAloud.ttsEngine = ttsEngine
+        // ReadAloud.ttsEngine 是 val 属性，只更新 AppConfig
         AppConfig.ttsEngine = ttsEngine
     }
 
