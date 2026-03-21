@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="?attr/background">
+
+    <!-- 标题栏 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/tts_voice_select"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnBackground" />
+
+        <ImageButton
+            android:id="@+id/btn_close"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_close"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/close"
+            app:tint="?attr/colorOnBackground" />
+    </LinearLayout>
+
+    <!-- 语音类型选择 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="24dp">
+
+        <TextView
+            android:id="@+id/voiceTypeLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/tts_voice_type"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnBackground"
+            android:paddingBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageButton
+                android:id="@+id/btn_voice_prev"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_chevron_left"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/previous"
+                app:tint="?attr/colorOnBackground" />
+
+            <SeekBar
+                android:id="@+id/voiceTypeSeek"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:progress="0"
+                android:max="10"
+                android:contentDescription="@string/a11y_adjust_voice_type" />
+
+            <ImageButton
+                android:id="@+id/btn_voice_next"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_chevron_right"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/next"
+                app:tint="?attr/colorOnBackground" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/voiceInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/tts_voice_not_selected"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnBackground"
+            android:paddingTop="8dp" />
+
+        <TextView
+            android:id="@+id/voiceFeatures"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:paddingTop="4dp" />
+    </LinearLayout>
+
+    <!-- 音调节 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/pitchLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/tts_pitch"
+                android:textSize="16sp"
+                android:textColor="?attr/colorOnBackground" />
+
+            <TextView
+                android:id="@+id/pitchValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1.0"
+                android:textSize="16sp"
+                android:textColor="?attr/colorPrimary"
+                android:paddingLeft="16dp" />
+        </LinearLayout>
+
+        <SeekBar
+            android:id="@+id/pitchSeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progress="5"
+            android:max="15"
+            android:contentDescription="@string/a11y_adjust_pitch"
+            android:paddingTop="8dp" />
+    </LinearLayout>
+
+    <!-- 语速调节 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="32dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/speedLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/tts_speed"
+                android:textSize="16sp"
+                android:textColor="?attr/colorOnBackground" />
+
+            <TextView
+                android:id="@+id/speedValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1.0"
+                android:textSize="16sp"
+                android:textColor="?attr/colorPrimary"
+                android:paddingLeft="16dp" />
+        </LinearLayout>
+
+        <SeekBar
+            android:id="@+id/speedSeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progress="5"
+            android:max="15"
+            android:contentDescription="@string/a11y_adjust_speed"
+            android:paddingTop="8dp" />
+    </LinearLayout>
+
+    <!-- 按钮区域 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btn_preview"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="@string/tts_preview"
+            android:textSize="16sp"
+            android:backgroundTint="?attr/colorSecondary"
+            android:textColor="?attr/colorOnSecondary"
+            android:contentDescription="@string/tts_preview，长按切换试听文本"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="@string/save"
+            android:textSize="16sp"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/tts_accessibility_hint"
+        android:textSize="12sp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:paddingTop="16dp"
+        android:visibility="gone" />
+
+</LinearLayout>
