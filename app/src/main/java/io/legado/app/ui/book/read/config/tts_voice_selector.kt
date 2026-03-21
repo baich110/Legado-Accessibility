@@ -1,14 +1,11 @@
 package io.legado.app.ui.book.read.config
 
-import android.content.Context
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import io.legado.app.R
@@ -17,8 +14,8 @@ import io.legado.app.data.appDb
 import io.legado.app.databinding.DialogTtsVoiceSelectorBinding
 import io.legado.app.help.config.AppConfig
 import io.legado.app.lib.theme.backgroundColor
-import io.legado.app.utils.applyTint
 import io.legado.app.utils.setLayout
+import io.legado.app.utils.toastOnUi
 import io.legado.app.utils.viewbindingdelegate.viewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,14 +30,13 @@ import kotlinx.coroutines.withContext
  * 3. 精简界面控件，提高空间利用率
  * 4. 优化无障碍支持
  */
-class TtsVoiceSelectorDialog : BaseDialogFragment() {
+class TtsVoiceSelectorDialog() : BaseDialogFragment(R.layout.dialog_tts_voice_selector, true) {
     
-    private val binding by viewBinding(DialogTtsVoiceSelectorBinding::inflate)
+    private val binding by viewBinding(DialogTtsVoiceSelectorBinding::bind)
     
     // 语音参数
     private var currentVoice: Voice? = null
-    private var currentPitch = 1.0f
-    private var currentSpeed = 1.0f
+    private var currentSpeed = 5  // 范围 0-10
     private var availableVoices = emptyList<Voice>()
     
     // TTS引擎
@@ -63,17 +59,12 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
         }
     }
     
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return binding.root
+    override fun onStart() {
+        super.onStart()
+        setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
     
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        
+    override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         initData()
         initView()
         setupAccessibility()
@@ -88,36 +79,28 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
             
             // 获取当前语音
             currentVoice = engine.voice
-            // 注意：TextToSpeech 没有 getPitch/getSpeechRate 的 getter
-            // 使用 AppConfig 中的保存值作为默认值
-            currentPitch = AppConfig.ttsPitch
+            // 使用 AppConfig 中的保存值
             currentSpeed = AppConfig.ttsSpeechRate
         }
     }
     
     private fun initView() {
-        // 设置对话框大小
-        dialog?.setLayout(0.9f, 0.7f)
-        
         // 标题
         binding.title.text = getString(R.string.tts_voice_select)
         
         // 1. 语音类型选择（进度条）
         setupVoiceTypeSelector()
         
-        // 2. 音调调节（进度条）
-        setupPitchSelector()
-        
-        // 3. 语速调节（进度条）
+        // 2. 语速调节（进度条）
         setupSpeedSelector()
         
-        // 4. 试听按钮
+        // 3. 试听按钮
         setupPreviewButton()
         
-        // 5. 保存按钮
+        // 4. 保存按钮
         setupSaveButton()
         
-        // 6. 关闭按钮
+        // 5. 关闭按钮
         binding.btnClose.setOnClickListener {
             dismiss()
         }
@@ -175,51 +158,21 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
     }
     
     /**
-     * 音调节选择器
-     */
-    private fun setupPitchSelector() {
-        binding.pitchLabel.text = getString(R.string.tts_pitch)
-        
-        // 音调范围：0.5 - 2.0，步进0.1
-        binding.pitchSeek.max = 15  // (2.0 - 0.5) / 0.1 = 15
-        
-        // 计算当前进度
-        val pitchProgress = ((currentPitch - 0.5f) / 0.1f).toInt()
-        binding.pitchSeek.progress = pitchProgress.coerceIn(0, 15)
-        
-        binding.pitchSeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    currentPitch = 0.5f + progress * 0.1f
-                    updatePitchValue()
-                }
-            }
-            
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-        
-        // 显示当前值
-        updatePitchValue()
-    }
-    
-    /**
      * 语速选择器
      */
     private fun setupSpeedSelector() {
         binding.speedLabel.text = getString(R.string.tts_speed)
         
-        // 语速范围：0.5 - 2.0，步进0.1
-        binding.speedSeek.max = 15  // (2.0 - 0.5) / 0.1 = 15
+        // 语速范围：0 - 10
+        binding.speedSeek.max = 10
         
-        // 计算当前进度
-        val speedProgress = ((currentSpeed - 0.5f) / 0.1f).toInt()
-        binding.speedSeek.progress = speedProgress.coerceIn(0, 15)
+        // 设置当前进度
+        binding.speedSeek.progress = currentSpeed.coerceIn(0, 10)
         
         binding.speedSeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
-                    currentSpeed = 0.5f + progress * 0.1f
+                    currentSpeed = progress
                     updateSpeedValue()
                 }
             }
@@ -244,7 +197,7 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
         // 长按切换试听文本
         binding.btnPreview.setOnLongClickListener {
             previewIndex = (previewIndex + 1) % previewTexts.size
-            showToast("试听文本已切换")
+            toastOnUi("试听文本已切换")
             true
         }
     }
@@ -292,12 +245,8 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
         }
     }
     
-    private fun updatePitchValue() {
-        binding.pitchValue.text = String.format("%.1f", currentPitch)
-    }
-    
     private fun updateSpeedValue() {
-        binding.speedValue.text = String.format("%.1f", currentSpeed)
+        binding.speedValue.text = String.format("%.1f", currentSpeed / 5f)
     }
     
     /**
@@ -308,8 +257,7 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
         
         ttsEngine?.let { engine ->
             // 应用当前设置
-            engine.setPitch(currentPitch)
-            engine.setSpeechRate(currentSpeed)
+            engine.setSpeechRate(currentSpeed / 5f)
             
             // 播放试听
             engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "preview")
@@ -324,7 +272,7 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
                 binding.btnPreview.isEnabled = true
             }, 3000)
         } ?: run {
-            showToast(getString(R.string.tts_engine_not_available))
+            toastOnUi(getString(R.string.tts_engine_not_available))
         }
     }
     
@@ -339,18 +287,16 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
                     appDb.ttsDao().updateVoice(voice.name)
                 }
                 
-                // 保存音调和语速
-                AppConfig.ttsPitch = currentPitch
+                // 保存语速
                 AppConfig.ttsSpeechRate = currentSpeed
                 
                 // 应用设置到TTS引擎
                 ttsEngine?.let { engine ->
-                    engine.setPitch(currentPitch)
-                    engine.setSpeechRate(currentSpeed)
+                    engine.setSpeechRate(currentSpeed / 5f)
                 }
             }
             
-            showToast(getString(R.string.save_success))
+            toastOnUi(getString(R.string.save_success))
         }
     }
     
@@ -363,13 +309,6 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
             binding.voiceTypeSeek,
             AccessibilityNodeInfoCompat.ACTION_SET_PROGRESS,
             getString(R.string.a11y_adjust_voice_type),
-            null
-        )
-        
-        ViewCompat.replaceAccessibilityAction(
-            binding.pitchSeek,
-            AccessibilityNodeInfoCompat.ACTION_SET_PROGRESS,
-            getString(R.string.a11y_adjust_pitch),
             null
         )
         
