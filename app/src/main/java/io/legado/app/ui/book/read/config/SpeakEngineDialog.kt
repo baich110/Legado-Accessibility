@@ -24,7 +24,7 @@ import io.legado.app.lib.dialogs.SelectItem
 import io.legado.app.lib.dialogs.alert
 import io.legado.app.model.ReadAloud
 import io.legado.app.utils.GSON
-import io.legado.app.utils.StringExtensions.isJsonObject
+import io.legado.app.utils.isJsonObject
 import io.legado.app.utils.fromJsonObject
 import io.legado.app.utils.showDialogFragment
 import io.legado.app.utils.toastOnUi
@@ -247,10 +247,10 @@ class SpeakEngineDialog : BaseDialogFragment(R.layout.dialog_speak_engine) {
      * 更新TTS引擎配置
      */
     private fun updateTtsEngine() {
-        val ttsEngine = when {
+        val ttsEngine: String? = when {
             selectedSysEngine != null -> {
                 val engine = viewModel.sysEngines.find { it.name == selectedSysEngine }
-                GSON.toJson(SelectItem(engine?.label ?: selectedSysEngine, selectedSysEngine))
+                GSON.toJson(SelectItem(engine?.label ?: selectedSysEngine!!, selectedSysEngine))
             }
             selectedHttpTtsId != null -> {
                 selectedHttpTtsId.toString()
