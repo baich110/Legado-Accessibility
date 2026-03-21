@@ -7,7 +7,7 @@ import android.speech.tts.Voice
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.SeekBar
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
@@ -86,10 +86,12 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
                 .filter { !it.name.contains("") && it.locale != null }
                 .sortedBy { it.name }
             
-            // 获取当前设置
+            // 获取当前语音
             currentVoice = engine.voice
-            currentPitch = engine.getPitch()
-            currentSpeed = engine.getSpeechRate()
+            // 注意：TextToSpeech 没有 getPitch/getSpeechRate 的 getter
+            // 使用 AppConfig 中的保存值作为默认值
+            currentPitch = AppConfig.ttsPitch
+            currentSpeed = AppConfig.ttsSpeechRate
         }
     }
     
@@ -131,7 +133,7 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
         binding.voiceTypeLabel.text = getString(R.string.tts_voice_type)
         
         // 设置进度条范围
-        binding.voiceTypeSeek.max = availableVoices.size - 1
+        binding.voiceTypeSeek.max = maxOf(0, availableVoices.size - 1)
         
         // 查找当前语音的索引
         val currentIndex = availableVoices.indexOfFirst { it == currentVoice }
@@ -156,15 +158,19 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
         binding.btnVoicePrev.setOnClickListener {
             val newProgress = maxOf(0, binding.voiceTypeSeek.progress - 1)
             binding.voiceTypeSeek.progress = newProgress
-            currentVoice = availableVoices[newProgress]
-            updateVoiceInfo()
+            if (newProgress < availableVoices.size) {
+                currentVoice = availableVoices[newProgress]
+                updateVoiceInfo()
+            }
         }
         
         binding.btnVoiceNext.setOnClickListener {
             val newProgress = minOf(availableVoices.size - 1, binding.voiceTypeSeek.progress + 1)
             binding.voiceTypeSeek.progress = newProgress
-            currentVoice = availableVoices[newProgress]
-            updateVoiceInfo()
+            if (newProgress >= 0 && newProgress < availableVoices.size) {
+                currentVoice = availableVoices[newProgress]
+                updateVoiceInfo()
+            }
         }
     }
     
@@ -247,7 +253,7 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
      * 保存按钮设置
      */
     private fun setupSaveButton() {
-        binding.btnSave.text = getString(R.string.save)
+        binding.btnSave.text = getString(R.string.action_save)
         binding.btnSave.setOnClickListener {
             saveSettings()
             dismiss()
@@ -302,9 +308,6 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
         
         ttsEngine?.let { engine ->
             // 应用当前设置
-            currentVoice?.let { voice ->
-                engine.voice = voice
-            }
             engine.setPitch(currentPitch)
             engine.setSpeechRate(currentSpeed)
             
@@ -342,9 +345,6 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
                 
                 // 应用设置到TTS引擎
                 ttsEngine?.let { engine ->
-                    currentVoice?.let { voice ->
-                        engine.voice = voice
-                    }
                     engine.setPitch(currentPitch)
                     engine.setSpeechRate(currentSpeed)
                 }
@@ -387,26 +387,6 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
         // 设置内容描述
         binding.voiceInfo.contentDescription = 
             getString(R.string.a11y_current_voice) + ": " + binding.voiceInfo.text
-        
-        // 设置焦点顺序
-        val focusOrder = listOf(
-            binding.voiceTypeSeek,
-            binding.btnVoicePrev,
-            binding.btnVoiceNext,
-            binding.pitchSeek,
-            binding.speedSeek,
-            binding.btnPreview,
-            binding.btnSave,
-            binding.btnClose
-        )
-        
-        focusOrder.forEachIndexed { index, view ->
-            view.nextFocusForwardId = if (index < focusOrder.size - 1) {
-                focusOrder[index + 1].id
-            } else {
-                focusOrder[0].id
-            }
-        }
     }
     
     override fun onDestroy() {
@@ -415,21 +395,3 @@ class TtsVoiceSelectorDialog : BaseDialogFragment() {
         ttsEngine?.stop()
     }
 }
-
-/**
- * 无障碍字符串资源（需要添加到strings.xml）
- * 
- * 添加以下字符串：
- * <string name="tts_voice_select">语音选择</string>
- * <string name="tts_voice_type">语音类型</string>
- * <string name="tts_pitch">音调</string>
- * <string name="tts_speed">语速</string>
- * <string name="tts_preview">试听</string>
- * <string name="tts_playing">正在播放…</string>
- * <string name="tts_voice_not_selected">未选择语音</string>
- * <string name="tts_engine_not_available">TTS引擎不可用</string>
- * <string name="a11y_adjust_voice_type">调整语音类型</string>
- * <string name="a11y_adjust_pitch">调整音调</string>
- * <string name="a11y_adjust_speed">调整语速</string>
- * <string name="a11y_current_voice">当前语音</string>
- */
