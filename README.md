@@ -1,5 +1,12 @@
 # Legado 无障碍适配版
 
+[![License](https://img.shields.io/badge/License-GPL--3.0-orange.svg?style=for-the-badge)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Android-green.svg?style=for-the-badge)](#)
+[![Release](https://img.shields.io/github/v/release/baich110/Legado-Accessibility?style=for-the-badge)](https://github.com/baich110/Legado-Accessibility/releases)
+[![Downloads](https://img.shields.io/github/downloads/baich110/Legado-Accessibility/total?style=for-the-badge)](https://github.com/baich110/Legado-Accessibility/releases)
+
+> 给 [Legado 阅读器](https://github.com/gedoor/legado) 加上无障碍服务适配，让 TalkBack 用户也能流畅阅读整本电子书。
+
 ## 项目简介
 
 本项目为 [Legado 阅读器](https://github.com/gedoor/Legado) 的无障碍服务适配版本，旨在帮助视障用户更好地使用阅读器功能。
